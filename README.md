@@ -378,3 +378,18 @@ loader 加载器可以协助 webpack 打包处理特定的文件模块，比如�
 
 See: https://github.com/webpack-contrib/css-loader#recommend
 <font color="660000">该配置下，能够通过 css-loader 同时来处理，css 文件和 js 文件中的 url 图片资源</font>
+
+##### 6. 打包处理 js 文件中的高级语法 （webpack 4.x）
+
+```
+    ① 安装 babel 转换器相关的包： npm i babel-loader @babel/core @babel/runtime -D
+    ② 安装 babel 语法插件相关的包：npm i @babel/preset-env @babel/plugin-transform-runtime @babel/plugin-proposal-class-properties -D
+    ③ 在项目根目录中，创建babel配置文件 babel.config.js 并初始化基本配置如下：
+        module.exports = {
+            presets: ['@babel/preset-env'],
+            plugins: ['@babel/plugin-transform-runtime', '@babel/plugin-proposal-class-properties']
+        }
+    ④ 在 webpack.config.js 的 module -> rules 数组中，添加 loader 规则如下：
+        // exclude 为排除项，表示 babel-loader不需要处理 node_modules 中的js文件
+        {test:/\.js$/, use:'babel-loader',exclude:/node_modules/}
+```

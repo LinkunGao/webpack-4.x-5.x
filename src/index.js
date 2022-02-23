@@ -10,4 +10,10 @@ $(function () {
 const div = document.querySelector("#box1");
 const img = document.createElement("img");
 img.src = a;
-div.appendChild(img);
+!!div && div.appendChild(img);
+
+class Person {
+  static info = "aaa";
+}
+
+console.log(Person.info);
