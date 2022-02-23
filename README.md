@@ -393,3 +393,40 @@ See: https://github.com/webpack-contrib/css-loader#recommend
         // exclude 为排除项，表示 babel-loader不需要处理 node_modules 中的js文件
         {test:/\.js$/, use:'babel-loader',exclude:/node_modules/}
 ```
+
+### C. Vue 单文件组件
+
+#### 传统组件的问题和解决方案
+
+- 问题
+  - 1. 全局定义的组件必须保证组件的名称不重复
+  - 2. 字符串模版缺乏语法高亮，在 HTML 有多行的时候，需要用到丑陋的\
+  - 3. 不支持 CSS 意味着当 HTML 和 JavaScript 组件化时，CSS 明显被遗漏
+  - 4. 没有构建步骤限制，只能使用 HTML 和 ES5 JavaScript， 而不能使用预处理器（如：babel）
+- 解决方案
+  针对传统组件的问题，Vue 提供了一个解决方案 ---- 使用 Vue 单文件组件。
+
+#### Vue 单文件组件的基本用法
+
+##### 单文件组件的组成结构
+
+- <font color="085372">template</font> 组件的模版区域
+- <font color="085372">script</font> 业务逻辑区域
+- <font color="085372">style</font>085372
+
+```
+        <template>
+            <!-- 这里用于定义Vue组件的模版内容 -->
+        </template>
+        <script>
+            // 这里用于定义Vue组件的业务逻辑
+            export default {
+                data(){return{}}, // 私有数据
+                methods:{} //处理函数
+                // ...其他业务逻辑
+            }
+        </script>
+        <style scoped>
+            /* 这里用于定义组件的样式 */
+        </style>
+```
