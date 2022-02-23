@@ -317,3 +317,20 @@ loader 加载器可以协助 webpack 打包处理特定的文件模块，比如�
             }
             其中，$代表以scss结尾的文件，test 表示匹配的文件类型，use 表示对应要调用的 loader
 ```
+
+##### 4. 配置 postCSS 自动添加 css 的兼容前缀（对 css 中的伪元素进行浏览器兼容性的配置）
+
+```
+        ① 运行 npm i postcss-loader autoprefixer -D 命令
+        ② 在项目根目录中创建 postcss 的配置文件 postcss.config.js, 并初始化如下配置：
+            const autoprefixer = require('autoprefixer) //导入自动添加前缀的插件
+            module.exports = {
+                plugins: [autoprefixer] // 挂载插件
+            }
+        ③ 在webpack.config.js 的module -> rules 数组中，修改 css 的loader规则如下：
+            module:{
+                rules:[
+                    {test:/\.css$/, use:['style-loader','css-loader','postcss-loader']}
+                ]
+            }
+```
