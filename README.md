@@ -334,3 +334,47 @@ loader 加载器可以协助 webpack 打包处理特定的文件模块，比如�
                 ]
             }
 ```
+
+##### 5. 打包样式表中的图片和字体文件
+
+- webpack 4.x, 貌似在 webpack 5.x 内能够自动处理 css 文件中的 url 问题了, 但不能处理 html 中的问题
+
+```
+        ① 运行 npm i url-loader file-loader -D 命令
+        ② 在webpack.config.js 的 module -> rules 数组中，添加 loader 规则如下：
+            module: {
+                rules: [
+                    {
+                        test:/\.jpg|png|gif|bmp|ttf|eot|svg|woff|woff2$/,
+                        use: 'url-loader?limit = 16940'
+                    }
+                ]
+            }
+        其中 ？ 之后的是 loader 的参数项。
+        limit 用来指定图片的大小，单位是字节（byte），只有小于 limit 大小的图片，才会被转为 base64 图片
+```
+
+<font color="660000">这种 url-loader 的配置只能用于处理 webpack 4.x 中 css 文件下 background url()中的图片路径</font>
+<font color="660000">在 webpack 5.x 中，这种配置就完全不适用了， 因为在 webpack 5.x 中，css-loader 完全能够处理 background url()图片格式的问题了，如果再加上这个配置，那么 css 中的图像不仅会被 css-loader 处理，同时还会被 url-loader 处理，因此导致图片无法正常显示。</font> url-loader 主要是处理图片或者其他文件信息通过 url 的形式被加载到<font color="660066">js 文件</font>中的一种处理方式，与 file-loader 有异曲同工之妙，它的优势在于能够对文件加 limit，从而减少请求文件的次数。
+
+- <font color="762893">file-loader 是 url-loader 的内置项</font>
+- 因此在 webpack 5.x 中，解决 css-loader 与 url-loader 对 css 文件下 处理 background url() 冲突的问题，我们做如下配置：
+
+```
+    module: {
+                rules: [
+                    {
+                        test: /\.css$/i,
+                        use: ["style-loader", "css-loader"],
+                    },
+                    {
+                        test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
+                        // More information here https://webpack.js.org/guides/asset-modules/
+                        type: "asset",
+                    },
+                ]
+            }
+```
+
+See: https://github.com/webpack-contrib/css-loader#recommend
+<font color="660000">该配置下，能够通过 css-loader 同时来处理，css 文件和 js 文件中的 url 图片资源</font>
