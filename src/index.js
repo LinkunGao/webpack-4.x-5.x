@@ -23,4 +23,4 @@ function plus(a, b) {
   console.log(a + b);
 }
 
-export { plus, Person };
+export { plus };
