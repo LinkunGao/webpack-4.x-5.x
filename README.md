@@ -489,7 +489,7 @@ See: https://github.com/webpack-contrib/css-loader#recommend
 
 ### 发布到 NPM
 
-#### 在 webpack 中
+#### 在 webpack 中的配置
 
 - 配置 terserwebpackplugin:
 
@@ -530,4 +530,30 @@ See: https://github.com/webpack-contrib/css-loader#recommend
                 "description": "webpack 模块化相关规范",
                 "main": "/dist/abi.js", // 无敌巨重要，必须要指明文件的入口
             }
+```
+
+- 使用 terserwebpackplugin 的优势：
+  与默认的 webpack 打包器（uglifyjs-webpack-plugin）相比，我们可以通过使用 terserwebpackplugin 在打包的过程中，过滤到 JS 代码中的 console.log 语句和 debugger 等。
+  设置一些过滤项配置：
+
+```
+        const TerserPlugin = require('terser-webpack-plugin');
+        module.exports = {
+            configureWebpack:{
+                optimization:{
+                    minimizer:[
+                        new TerserPlugin({
+                            terserOptions:{
+                                compress:{
+                                    warnings:false,
+                                    drop_console:true,
+                                    drop_debugger:true,
+                                    pure_funcs:["console.log"]
+                                }
+                            }
+                        })
+                    ]
+                }
+            }
+        }
 ```
