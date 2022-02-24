@@ -528,6 +528,6 @@ See: https://github.com/webpack-contrib/css-loader#recommend
                 "name": "webpack4-demo",
                 "version": "1.0.0",
                 "description": "webpack 模块化相关规范",
-                "main": "/dist/abi.js", // 无敌巨重要
+                "main": "/dist/abi.js", // 无敌巨重要，必须要指明文件的入口
             }
 ```
