@@ -430,3 +430,104 @@ See: https://github.com/webpack-contrib/css-loader#recommend
             /* 这里用于定义组件的样式 */
         </style>
 ```
+
+##### Webpack 中配置 vue 组件加载器
+
+```
+    ① 运行 npm i vue-loader vue-template-compiler -D 命令， 后面的这个包是vue-loader的内置依赖项
+    ② 在 webpack.config.js 配置文件中，添加 vue-loader 的配置项如下：
+        const VueLoaderPlugin = require('vue-loader')
+        module.exports = {
+            module:{
+                rules: [
+                    // ... 其他规则
+                    {test:/\.vue$/, loader: 'vue-loader'}
+                ]
+            },
+            plugins:[
+                // ... 其他插件
+                new VueLoaderPlugin() // 请确保引入这个插件
+            ]
+        }
+    有问题！！！！！！！
+```
+
+##### 在 webpack 项目中使用 vue
+
+```
+    ① 运行 npm i vue -S 安装 vue
+    ② 在 src -> index.js 入口文件中，通过 import Vue from 'vue' 来导入vue构造函数
+    ③ 创建 vue 的实例对象，并指定要控制的 el 区域
+    ④ 通过 render 函数渲染 App 根组件
+        // 1. 导入Vue构造函数
+        import Vue from 'vue'
+        // 2. 导入 App 根组件
+        import App from './components/App.vue'
+
+        const vm = new Vue({
+            // 3. 指定vm实例要控制的页面区域
+            el: '#app',
+            // 4. 通过 render 函数，把指定的组件渲染到 el 区域中
+            render: h => h(App)
+        })
+```
+
+##### webpack 打包发布
+
+上线之前需要通过 webpack 将应用进行整体打包，可以通过 package.json 文件配置打包命令：
+
+```
+        // 在package.json文件中配置webpack打包命令
+        // 该命令默认加载项目根目录中的 webpack.config.js配置文件
+        "scripts":{
+            //用于打包的命令
+            "build": "webpack",
+            //用于开发调试的命令
+            "dev": "webpack-dev-server --open --host 127.0.0.1 --port 3000",
+        }
+```
+
+### 发布到 NPM
+
+#### 在 webpack 中
+
+- 配置 terserwebpackplugin:
+
+```
+        ① 运行 npm install terser-webpack-plugin --save-dev
+        ② 在 webpack.config.js 配置文件中，更改如下配置：
+            const TerserPlugin = require("terser-webpack-plugin"); // 引入压缩插件
+             entry: {
+                "abi": "./src/index.js",
+                "abi.min": "./src/index.js",
+            },
+            output: {
+                filename: "[name].js",
+                library: "abi",
+                libraryExport: "default", // 不添加的话引用的时候需要 abi.default
+                libraryTarget: "umd", // var this window ...
+            },
+            optimization: {
+                minimize: true,
+                minimizer: [
+                new TerserPlugin({
+                    // 使用压缩插件
+                    include: /\.min\.js$/,
+                }),
+                ],
+            },
+        ③ 在根目录文件中，创建一个index.js 文件， 用来选择暴露模块库 (可选)：
+            if (process.env.NODE_ENV === "production") {
+                // 通过环境变量来决定入口文件
+                module.exports = require("./dist/abi.min.js");
+            } else {
+                module.exports = require("./dist/abi.js");
+            }
+        ④ 在package.json中，做如下配置（非常重要）：
+            {
+                "name": "webpack4-demo",
+                "version": "1.0.0",
+                "description": "webpack 模块化相关规范",
+                "main": "/dist/abi.js", // 无敌巨重要
+            }
+```
