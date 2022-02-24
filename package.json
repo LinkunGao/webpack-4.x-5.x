@@ -1,6 +1,6 @@
 {
   "name": "webpack4-demo",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "webpack 模块化相关规范",
   "main": "/dist/abi.js",
   "scripts": {

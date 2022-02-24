@@ -13,14 +13,12 @@ const img = document.createElement("img");
 img.src = a;
 !!div && div.appendChild(img);
 
-export class Person {
+class Person {
   static info = "aaa";
 }
-
-console.log(Person.info);
 
 function plus(a, b) {
   console.log(a + b);
 }
 
-export { plus };
+export default { plus, Person };
