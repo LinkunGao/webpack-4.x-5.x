@@ -393,3 +393,141 @@ See: https://github.com/webpack-contrib/css-loader#recommend
         // exclude 为排除项，表示 babel-loader不需要处理 node_modules 中的js文件
         {test:/\.js$/, use:'babel-loader',exclude:/node_modules/}
 ```
+
+### C. Vue 单文件组件
+
+#### 传统组件的问题和解决方案
+
+- 问题
+  - 1. 全局定义的组件必须保证组件的名称不重复
+  - 2. 字符串模版缺乏语法高亮，在 HTML 有多行的时候，需要用到丑陋的\
+  - 3. 不支持 CSS 意味着当 HTML 和 JavaScript 组件化时，CSS 明显被遗漏
+  - 4. 没有构建步骤限制，只能使用 HTML 和 ES5 JavaScript， 而不能使用预处理器（如：babel）
+- 解决方案
+  针对传统组件的问题，Vue 提供了一个解决方案 ---- 使用 Vue 单文件组件。
+
+#### Vue 单文件组件的基本用法
+
+##### 单文件组件的组成结构
+
+- <font color="085372">template</font> 组件的模版区域
+- <font color="085372">script</font> 业务逻辑区域
+- <font color="085372">style</font>085372
+
+```
+        <template>
+            <!-- 这里用于定义Vue组件的模版内容 -->
+        </template>
+        <script>
+            // 这里用于定义Vue组件的业务逻辑
+            export default {
+                data(){return{}}, // 私有数据
+                methods:{} //处理函数
+                // ...其他业务逻辑
+            }
+        </script>
+        <style scoped>
+            /* 这里用于定义组件的样式 */
+        </style>
+```
+
+##### Webpack 中配置 vue 组件加载器
+
+```
+    ① 运行 npm i vue-loader vue-template-compiler -D 命令， 后面的这个包是vue-loader的内置依赖项
+    ② 在 webpack.config.js 配置文件中，添加 vue-loader 的配置项如下：
+        const VueLoaderPlugin = require('vue-loader')
+        module.exports = {
+            module:{
+                rules: [
+                    // ... 其他规则
+                    {test:/\.vue$/, loader: 'vue-loader'}
+                ]
+            },
+            plugins:[
+                // ... 其他插件
+                new VueLoaderPlugin() // 请确保引入这个插件
+            ]
+        }
+    有问题！！！！！！！
+```
+
+##### 在 webpack 项目中使用 vue
+
+```
+    ① 运行 npm i vue -S 安装 vue
+    ② 在 src -> index.js 入口文件中，通过 import Vue from 'vue' 来导入vue构造函数
+    ③ 创建 vue 的实例对象，并指定要控制的 el 区域
+    ④ 通过 render 函数渲染 App 根组件
+        // 1. 导入Vue构造函数
+        import Vue from 'vue'
+        // 2. 导入 App 根组件
+        import App from './components/App.vue'
+
+        const vm = new Vue({
+            // 3. 指定vm实例要控制的页面区域
+            el: '#app',
+            // 4. 通过 render 函数，把指定的组件渲染到 el 区域中
+            render: h => h(App)
+        })
+```
+
+##### webpack 打包发布
+
+上线之前需要通过 webpack 将应用进行整体打包，可以通过 package.json 文件配置打包命令：
+
+```
+        // 在package.json文件中配置webpack打包命令
+        // 该命令默认加载项目根目录中的 webpack.config.js配置文件
+        "scripts":{
+            //用于打包的命令
+            "build": "webpack",
+            //用于开发调试的命令
+            "dev": "webpack-dev-server --open --host 127.0.0.1 --port 3000",
+        }
+```
+
+### 发布到 NPM
+
+#### 在 webpack 中
+
+- 配置 terserwebpackplugin:
+
+```
+        ① 运行 npm install terser-webpack-plugin --save-dev
+        ② 在 webpack.config.js 配置文件中，更改如下配置：
+            const TerserPlugin = require("terser-webpack-plugin"); // 引入压缩插件
+             entry: {
+                "abi": "./src/index.js",
+                "abi.min": "./src/index.js",
+            },
+            output: {
+                filename: "[name].js",
+                library: "abi",
+                libraryExport: "default", // 不添加的话引用的时候需要 abi.default
+                libraryTarget: "umd", // var this window ...
+            },
+            optimization: {
+                minimize: true,
+                minimizer: [
+                new TerserPlugin({
+                    // 使用压缩插件
+                    include: /\.min\.js$/,
+                }),
+                ],
+            },
+        ③ 在根目录文件中，创建一个index.js 文件， 用来选择暴露模块库 (可选)：
+            if (process.env.NODE_ENV === "production") {
+                // 通过环境变量来决定入口文件
+                module.exports = require("./dist/abi.min.js");
+            } else {
+                module.exports = require("./dist/abi.js");
+            }
+        ④ 在package.json中，做如下配置（非常重要）：
+            {
+                "name": "webpack4-demo",
+                "version": "1.0.0",
+                "description": "webpack 模块化相关规范",
+                "main": "/dist/abi.js", // 无敌巨重要，必须要指明文件的入口
+            }
+```

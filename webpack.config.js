@@ -1,17 +1,39 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin"); // 引入压缩插件
 const htmlPlugin = new HtmlWebpackPlugin({
   template: "./src/index.html",
   filename: "index.html",
 });
+
+// const { VueLoaderPlugin } = require("vue-loader");
+
 module.exports = {
   devtool: "source-map",
   // 编译模式
   mode: "development", //development production
-  entry: path.join(__dirname, "./src/index.js"),
+  entry: {
+    abi: "./src/index.js",
+    "abi.min": "./src/index.js",
+  },
+  // output: {
+  //   path: path.join(__dirname, "./dist"), // 输出文件的存放路径
+  //   filename: "bundle.js", //输出文件的名称
+  // },
   output: {
-    path: path.join(__dirname, "./dist"), // 输出文件的存放路径
-    filename: "bundle.js", //输出文件的名称
+    filename: "[name].js",
+    library: "abi",
+    libraryExport: "default", // 不添加的话引用的时候需要 tools.default
+    libraryTarget: "umd", // var this window ...
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        // 使用压缩插件
+        include: /\.min\.js$/,
+      }),
+    ],
   },
   plugins: [htmlPlugin],
   module: {
@@ -25,17 +47,7 @@ module.exports = {
         // More information here https://webpack.js.org/guides/asset-modules/
         type: "asset",
       },
-      // {
-      //   test: /\.jpg|png|gif|bmp|ttf|eot|svg|woff|woff2$/i,
-      //   use: [
-      //     {
-      //       loader: "url-loader",
-      //       options: {
-      //         limit: 8192,
-      //       },
-      //     },
-      //   ],
-      // },
+      { test: /\.js$/, use: "babel-loader", exclude: /node_modules/ },
     ],
   },
 };
