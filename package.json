@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
+    "copper3d": "^0.0.6",
     "jquery": "^3.3.1"
   }
 }

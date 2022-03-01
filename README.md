@@ -504,7 +504,7 @@ See: https://github.com/webpack-contrib/css-loader#recommend
             output: {
                 filename: "[name].js",
                 library: "abi",
-                libraryExport: "default", // 不添加的话引用的时候需要 abi.default
+                libraryExport: "default", // 不添加的话引用的时候需要 abi.default, 慎重考虑是否要添加！
                 libraryTarget: "umd", // var this window ...
             },
             optimization: {
@@ -557,3 +557,38 @@ See: https://github.com/webpack-contrib/css-loader#recommend
             }
         }
 ```
+
+### HtmlWebpackPlugin 详细参数配置
+
+```
+    new HtmlWebpackPlugin({
+        template: path.join(__dirname, `src/examples/${pathname}/index.html`),
+        filename: `${pathname}.html`,
+        chunks: [pathname],
+        hash: true,
+        inject: true,
+        minify: {
+          html5: true,
+          collapseWhitespace: true,
+          preserveLineBreaks: false,
+          minifyJS: true,
+          minifyCSS: true,
+          removeComments: false,
+        },
+      })
+    );
+```
+
+- title: 生成 html 文件的标题
+- filename: 将 HTML 写入到文件。 默认为 index.html， 你也可以在此处指定子目录：assets/admin.html。可以使用占位符[name]更改文件名。也可以是一个函数(entryName) => entryName + '.html'。使用`${}`也行，`${pathname}.html`。
+- template: webpack 模版的相对路径或绝对路径，也就是源文件。
+- chunks: chunks 主要用于多入口文件，当你有多个入口文件，那就回编译后生成多个打包后的文件，选择使用那些 js 文件 ，没有设置 chunks 选项，那么默认是全部显示(当配置 vue 开发多页面时，记得配置 chunks，否则会有 html 引入不需要的 js 报错 [Vue warn]: Cannot find element:)
+- inject: 指定生成的 JS 文件放入 HTML 文件的位置，inject:true | ‘head’ | ‘body’ | false 。把所有产出文件注入到给定的 template 或 templateContent。当传入 true 或者 ‘body’时所有 javascript 资源将被放置在 body 元素的底部，“head”则会放在 head 元素内。
+- hash: 如果 true，那么将为生成的文件名添加是 hash 值。这对于缓存清除很有用。
+- {…} | false 。传一个 html-minifier 配置 object 来压缩输出。 see: https://github.com/terser/html-minifier-terser
+  - html5: 将输入文件根据 HTML5 标准来转换。 default: true
+  - minifyCSS: 使用 clean-css 来压缩样式元素和样式属性。default: false
+  - minifyJS: 使用 Terser 来压缩 js 代码。 default: false
+  - collapseWhitespace: 删除所有的空格。 default: false
+  - preserveLineBreaks: 与 collapseWhitespace 一起连用，删除换行符。 default: false
+  - removeComments: 去除 HTML 注释。default: false
